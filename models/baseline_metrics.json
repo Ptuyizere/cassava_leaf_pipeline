@@ -1,0 +1,46 @@
+{
+  "tuning": [
+    {
+      "Configuration": "Baseline (lr=1e-3, L2=0)",
+      "Best Epoch": 2,
+      "Test Accuracy": 0.6277,
+      "Test Loss": 0.7127,
+      "F1 Score": 0.6906,
+      "ROC-AUC": 0.6833
+    },
+    {
+      "Configuration": "Regularized (lr=1e-3, L2=1e-3, Drop=0.3/0.2)",
+      "Best Epoch": 4,
+      "Test Accuracy": 0.632,
+      "Test Loss": 0.7143,
+      "F1 Score": 0.6975,
+      "ROC-AUC": 0.6915
+    },
+    {
+      "Configuration": "Tuned (lr=8e-4, L2=2e-3, Drop=0.3/0.2)",
+      "Best Epoch": 7,
+      "Test Accuracy": 0.6234,
+      "Test Loss": 0.7703,
+      "F1 Score": 0.6904,
+      "ROC-AUC": 0.6929
+    }
+  ],
+  "final_test_metrics": {
+    "accuracy": 0.632,
+    "loss": 0.7143,
+    "precision": 0.6282,
+    "recall": 0.784,
+    "f1_score": 0.6975,
+    "roc_auc": 0.6915,
+    "confusion_matrix": [
+      [
+        48,
+        58
+      ],
+      [
+        27,
+        98
+      ]
+    ]
+  }
+}

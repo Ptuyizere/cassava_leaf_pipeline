@@ -2,6 +2,7 @@ import io
 import cv2
 import numpy as np
 from PIL import Image
+from pathlib import Path
 
 IMAGE_SIZE = (64, 64)
 PATCH_SIZE = (16, 16)
@@ -16,6 +17,10 @@ INTERPRETABLE_FEATURE_NAMES = [
     "rgb_blue_mean",
     "hsv_saturation_mean",
 ]
+
+CLASSES = ["Healthy", "Mosaic_Diseased"]
+
+IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp"}
 
 
 def load_image_from_bytes(raw_bytes):
@@ -135,3 +140,44 @@ def preprocess_dataset(image_paths, labels=None, augment=False, augment_copies=1
     X = np.vstack(features).astype(np.float32)
     y = np.array(out_labels, dtype=np.float32) if labels is not None else None
     return X, y, interp_records
+
+def verify_real_dataset(data_dir="data", min_per_class=10):
+    data_path = Path(data_dir)
+    counts = {"train": {}, "test": {}}
+    missing = []
+
+    for split in ["train", "test"]:
+        for cls_name in CLASSES:
+            cls_dir = data_path / split / cls_name
+            cls_dir.mkdir(parents=True, exist_ok=True)
+            imgs = [p for p in cls_dir.iterdir() if p.is_file() and p.suffix.lower() in IMAGE_EXTS]
+            counts[split][cls_name] = len(imgs)
+            if len(imgs) < min_per_class:
+                missing.append(f"{split}/{cls_name} ({len(imgs)} found, need {min_per_class})")
+
+    if missing:
+        msg = "Missing real cassava leaf images in: " + ", ".join(missing)
+        msg += "\nRun: python -m src.data_acquisition --mode tfds --data-dir data"
+        msg += "\nOr:  python -m src.data_acquisition --mode kaggle --kaggle-dir <folder> --data-dir data"
+        raise FileNotFoundError(msg)
+
+    return counts
+
+def load_image_paths(split_dir):
+    split_path = Path(split_dir)
+    paths = []
+    labels = []
+
+    for idx, cls_name in enumerate(CLASSES):
+        cls_dir = split_path / cls_name
+        if not cls_dir.exists():
+            continue
+        for p in sorted(cls_dir.iterdir()):
+            if p.is_file() and p.suffix.lower() in IMAGE_EXTS:
+                paths.append(p)
+                labels.append(idx)
+
+    return paths, labels
+
+
+
