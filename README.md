@@ -13,7 +13,6 @@ cassava_leaf_mlops_pipeline/
 ├── README.md
 ├── requirements.txt
 ├── train.py
-├── verify_api.py
 ├── Dockerfile
 ├── docker-compose.yml
 ├── nginx.conf
