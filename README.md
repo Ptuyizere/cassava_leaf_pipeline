@@ -5,7 +5,7 @@ This project classifies the cassava leaf images as either **Healthy** or **Mosai
 ## Links
 - **GitHub Repository:** `https://github.com/Ptuyizere/cassava_leaf_pipeline.git`
 - **Deployed App URL:** `https://cassava-leaf-pipeline.onrender.com/`
-- **Video Demo:** ``
+- **Video Demo:** `https://youtu.be/g1L-8d4HMNA`
 
 ## Project Structure
 ```text
