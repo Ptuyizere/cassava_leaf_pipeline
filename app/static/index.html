@@ -115,7 +115,7 @@
 
   <script>
     async function loadVersion() {
-      const res = await fetch('/health');
+      const res = await fetch('/version');
       const data = await res.json();
       document.getElementById('versionVal').textContent = data.model_version;
     }

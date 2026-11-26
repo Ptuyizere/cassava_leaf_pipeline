@@ -31,6 +31,10 @@ def serve_ui():
     index_file = STATIC_DIR / "index.html"
     return HTMLResponse(content=index_file.read_text(encoding="utf-8"))
 
+@app.get("/version")
+def get_version():
+    return {"model_version": predictor.model.version}
+
 @app.get("/visualizations")
 def get_visualizations():
     train_paths, train_labels = load_image_paths(DATA_DIR / "train")
