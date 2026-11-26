@@ -51,13 +51,10 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-2. Download real cassava leaf images (choose one option):
+2. Download real cassava leaf images:
 ```bash
-# Option A: TensorFlow Datasets
+# TensorFlow datasets
 python -m src.data_acquisition --mode tfds --data-dir data --max-train 500 --max-test 125
-
-# Option B: Extracted Kaggle archive
-python -m src.data_acquisition --mode kaggle --kaggle-dir /path/to/kaggle_cassava --data-dir data --max-train 500 --max-test 125
 ```
 
 3. Train the model (or run `notebook/cassava_classification.ipynb`):
