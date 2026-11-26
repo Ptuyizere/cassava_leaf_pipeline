@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cassava Leaf Disease Classifier</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 30px auto; padding: 0 16px; }
+    section { border: 1px solid #ccc; padding: 16px; margin-bottom: 20px; }
+    input, select, button { margin-top: 8px; display: block; }
+    button { padding: 6px 12px; cursor: pointer; }
+    pre { background: #f4f4f4; padding: 10px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+  </style>
+</head>
+<body>
+  <h1>Cassava Leaf Disease Classifier</h1>
+  <p>Model version: <strong id="versionVal">Loading...</strong></p>
+
+  <section>
+    <h2>1. Predict Single Leaf</h2>
+    <input type="file" id="predictFile" accept="image/*" />
+    <button onclick="runPrediction()">Predict</button>
+    <pre id="predictResult">No prediction yet.</pre>
+  </section>
+
+  <section>
+    <h2>2. Bulk Upload & Retrain</h2>
+    <select id="retrainLabel">
+      <option value="Mosaic_Diseased">Mosaic_Diseased</option>
+      <option value="Healthy">Healthy</option>
+    </select>
+    <input type="file" id="retrainFiles" accept="image/*" multiple />
+    <button onclick="uploadRetrainData()">Upload Images</button>
+    <button onclick="triggerRetrain()">Retrain Model</button>
+    <pre id="retrainResult">No retraining run yet.</pre>
+  </section>
+
+  <section>
+    <h2>3. Dataset Feature Summary</h2>
+    <div id="vizContainer">Loading...</div>
+  </section>
+
+  <script>
+    async function loadVersion() {
+      const res = await fetch('/health');
+      const data = await res.json();
+      document.getElementById('versionVal').textContent = data.model_version;
+    }
+
+    async function loadVisualizations() {
+      const res = await fetch('/visualizations');
+      const data = await res.json();
+      let html = '<table><tr><th>Feature</th><th>Healthy Mean</th><th>Mosaic_Diseased Mean</th><th>Notes</th></tr>';
+
+      data.interpretations.forEach(item => {
+        const stats = data.features[item.feature];
+        html += `<tr>
+          <td>${item.title}</td>
+          <td>${stats.Healthy_mean}</td>
+          <td>${stats.Mosaic_Diseased_mean}</td>
+          <td>${item.story}</td>
+        </tr>`;
+      });
+
+      html += '</table>';
+      document.getElementById('vizContainer').innerHTML = html;
+    }
+
+    async function runPrediction() {
+      const fileInput = document.getElementById('predictFile');
+      const box = document.getElementById('predictResult');
+      if (!fileInput.files.length) {
+        box.textContent = 'Select an image first.';
+        return;
+      }
+      const form = new FormData();
+      form.append('file', fileInput.files[0]);
+      box.textContent = 'Running...';
+
+      const res = await fetch('/predict', { method: 'POST', body: form });
+      box.textContent = JSON.stringify(await res.json(), null, 2);
+    }
+
+    async function uploadRetrainData() {
+      const files = document.getElementById('retrainFiles').files;
+      const label = document.getElementById('retrainLabel').value;
+      const box = document.getElementById('retrainResult');
+      if (!files.length) {
+        box.textContent = 'Select one or more images.';
+        return;
+      }
+      const form = new FormData();
+      form.append('label', label);
+      for (const f of files) {
+        form.append('files', f);
+      }
+      box.textContent = 'Uploading...';
+
+      const res = await fetch('/upload-retrain-data', { method: 'POST', body: form });
+      box.textContent = JSON.stringify(await res.json(), null, 2);
+    }
+
+    async function triggerRetrain() {
+      const box = document.getElementById('retrainResult');
+      box.textContent = 'Retraining...';
+
+      const res = await fetch('/retrain', { method: 'POST' });
+      box.textContent = JSON.stringify(await res.json(), null, 2);
+      loadVersion();
+    }
+
+    loadVersion();
+    loadVisualizations();
+  </script>
+</body>
+</html>
