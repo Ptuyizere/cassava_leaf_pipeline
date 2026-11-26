@@ -115,7 +115,7 @@
 
   <script>
     async function loadVersion() {
-      const res = await fetch('/version');
+      const res = await fetch('/version', {cache: 'no-store'});
       const data = await res.json();
       document.getElementById('versionVal').textContent = data.model_version;
     }
@@ -177,6 +177,7 @@
           <div class="kv-item"><span class="kv-label">Texture Energy</span><strong>${f.laplacian_texture_energy}</strong></div>
         </div>
       `;
+      localStorage.setItem('lastPredictionHtml', box.innerHTML);
     }
 
     async function uploadRetrainData() {
@@ -242,11 +243,16 @@
           <div class="kv-item"><span class="kv-label">Test Loss</span><strong>${m.loss}</strong></div>
         </div>
       `;
+      localStorage.setItem('lastRetrainHtml', box.innerHTML);
       loadVersion();
     }
 
     loadVersion();
     loadVisualizations();
+    const savedPred = localStorage.getItem('lastPredictionHtml');
+    if (savedPred) document.getElementById('predictResult').innerHTML = savedPred;
+    const savedRetrain = localStorage.getItem('lastRetrainHtml');
+    if (savedRetrain) document.getElementById('retrainResult').innerHTML = savedRetrain;
   </script>
 </body>
 </html>

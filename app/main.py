@@ -33,6 +33,7 @@ def serve_ui():
 
 @app.get("/version")
 def get_version():
+    predictor.ensure_latest()
     return {"model_version": predictor.model.version}
 
 @app.get("/visualizations")

@@ -13,12 +13,20 @@ from src.preprocessing import (
 class CassavaPredictor:
     def __init__(self, model_path):
         self.model_path = Path(model_path)
-        self.model = CassavaNeuralClassifier.load(self.model_path)
+        self.model = None
+        self.last_mtime = 0
+        self.reload()
 
     def reload(self):
         self.model = CassavaNeuralClassifier.load(self.model_path)
+        self.last_mtime = self.model_path.stat().st_mtime
+
+    def ensure_latest(self):
+        if self.model_path.stat().st_mtime != self.last_mtime:
+            self.reload()
 
     def predict_array(self, img_rgb):
+        self.ensure_latest()
         feats_vec = extract_feature_vector(img_rgb).reshape(1, -1)
         prob_diseased = float(self.model.predict_proba(feats_vec)[0])
         pred_idx = int(prob_diseased >= 0.5)
@@ -41,3 +49,5 @@ class CassavaPredictor:
     def predict_file(self, file_path):
         img_rgb = load_image_from_path(file_path)
         return self.predict_array(img_rgb)
+
+
